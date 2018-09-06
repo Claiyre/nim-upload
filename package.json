@@ -1,0 +1,33 @@
+{
+  "name": "nim-upload",
+  "version": "1.0.0",
+  "description": "A helpful library for uploading files on web",
+  "main": "index.js",
+  "scripts": {
+    "test": "test",
+    "lint": "eslint --ext .vue index.vue"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Claiyre/nim-upload.git"
+  },
+  "keywords": [
+    "file",
+    "upload",
+    "nim"
+  ],
+  "author": "Claiyre",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Claiyre/nim-upload/issues"
+  },
+  "homepage": "https://github.com/Claiyre/nim-upload#readme",
+  "devDependencies": {
+    "eslint": "^5.5.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-promise": "^4.0.0",
+    "eslint-plugin-standard": "^4.0.0"
+  }
+}
