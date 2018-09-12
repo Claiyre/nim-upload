@@ -1,9 +1,16 @@
 module.exports = {
-  "root": true,
-  "extends": [
+  root: true,
+  extends: [
       "standard"
   ],
-  "parserOptions": {
+  parserOptions: {
     "ecmaVersion": 2017
+  },
+  parser: "babel-eslint",
+  globals: {
+    "FileReader": true
+  },
+  rules: {
+    "strict": 0
   }
 };
