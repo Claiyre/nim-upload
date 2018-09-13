@@ -1,10 +1,15 @@
 import './index.scss'
-import Uploader from '../src/index'
-// let input = document.getElementById('file-input')
-// input.onchange = (e) => {
-//   log(e)
-//   log(input.files[0].slice(0, 100))
-// }
+// import Uploader from '../src/index'
+let input = document.getElementById('file-input')
+console.log(input.nodeType)
+console.log(input.type)
+console.log(input.nodeName)
+input.onchange = (e) => {
+  console.log(e.target.files[0] instanceof File)
+  console.log(input.files[0].slice(0, 100) instanceof File)
+  console.log(input.files[0].slice(0, 100) instanceof Blob)
+  console.log(input.files[0].slice(0, 100))
+}
 
 // let loader = new Uploader()
 function addAge (target) {

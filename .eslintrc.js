@@ -8,7 +8,9 @@ module.exports = {
   },
   parser: "babel-eslint",
   globals: {
-    "FileReader": true
+    "File": true,
+    "Blob": true,
+    "localStorage": true
   },
   rules: {
     "strict": 0
