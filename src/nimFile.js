@@ -4,9 +4,6 @@ import Handlers from './handlers'
 let h = new Handlers()
 class NimFile {
   constructor (file) {
-    console.log(this.aa)
-    console.log(NimFile.prototype.aa)
-    console.log(this)
     if (!(file instanceof File)) {
       h.onError(new Error(`class NimFile's param can only be File object, not ${file}`))
       return false
@@ -17,7 +14,7 @@ class NimFile {
     this.fileName = file.name
     this.format = file.name.split('.').pop()
     this.checked = true
-    this.status = 0
+    this.status = 0 /* 0: 等待上传 1: 上传中 2: 上传完毕 */
     this.progress = 0
     localStorage.setItem(fileKey + '_created', new Date())
   }
@@ -89,13 +86,25 @@ class NimFile {
     })
   }
   ruin () {
-
+    localStorage.removeItem(`${this.fileKey}_context`)
+    this.checked = false
   }
   updateStatus (status) {
     this.status = status
   }
-  updateProgress (p) {
-    this.progress = p
+  updateProgress (offset) {
+    if (offset <= 0) {
+      this.progress = 0
+    } else if (offset < this.size) {
+      let p = (offset / this.size).toFixed(4)
+      this.status = 1
+      this.progress = p
+      h.onProgress(p)
+    } else {
+      this.progress = 1
+      this.status = 2
+      h.onProgress(1)
+    }
   }
 }
 
