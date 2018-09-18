@@ -35,10 +35,10 @@ class Handlers {
 
   }
   /**
-   * 向fileList中添加的文件已存在的回调
+   * 文件类型不匹配
    */
-  existFn (file) {
-
+  onFileTypeNotMatch (type) {
+    this.onError(`${type} is not accepted by this uploader`)
   }
 }
 
