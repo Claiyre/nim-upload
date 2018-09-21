@@ -31,7 +31,7 @@ class Handlers {
   /**
    * 向fileList中添加文件成功的回调
    */
-  onAdded (file) {
+  onAdded (fileKey) {
 
   }
   /**

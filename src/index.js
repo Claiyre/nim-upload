@@ -5,6 +5,10 @@ import { defaultOptions } from './config'
 import Handlers from './handlers'
 import NimFile from './nimFile'
 const h = new Handlers()
+
+// TODO 参数更加健全
+// TODO 添加对旧库的兼容，非promise情况下的兼容
+// TODO add test
 /**
  * @class Uploader
  * @param params 参数对象
@@ -20,9 +24,9 @@ const h = new Handlers()
  */
 class Uploader {
   constructor (params) {
-    const options = Object.assign({}, defaultOptions, arguments)
+    const options = Object.assign({}, defaultOptions, params)
     this.fileList = []
-    checkParams.call(this)
+    checkParams(options)
     Object.keys(options).forEach(key => {
       if (key.startsWith('on')) {
         this.on(key, options[key])
@@ -78,6 +82,7 @@ class Uploader {
         let ext = item.name.split('.').pop()
         if (exts.find(ext)) {
           this.fileList.push(new NimFile(item))
+          h.onAdded()
         } else {
           h.onFileTypeNotMatch(ext)
         }
@@ -85,26 +90,33 @@ class Uploader {
     }
   }
   /**
+   * 根据fileKey得到NimFile实例对象
+   * @param {String} fileKey NimFile实例对象的fileKey，唯一键值
+   */
+  findFile (fileKey) {
+    return this.fileList.find(item => item.fileKey === fileKey)
+  }
+  /**
    * 上传所有文件
    */
-  upLoadAll () {
+  uploadAll () {
     let promiseArr = []
-    for (let i = 0; i < this.fileList.length; i++) {
-      if (this.fileList[i].checked) {
-        promiseArr.push(this.upLoadFile(i))
+    this.fileList.forEach(item => {
+      if (item.checked) {
+        promiseArr.push(this.uploadFile(item.fileKey))
       }
-    }
+    })
     return Promise.all(promiseArr).then(res => {
       h.onAllUploaded()
       return Promise.resolve()
     })
   }
   /**
-   * 根据索引上传文件
-   * @param {Number} fileIndex 文件在fileList中的索引
+   * 根据fileKey上传文件
+   * @param {Number} fileKey 文件在fileList中的索引
    */
-  upLoadFile (fileIndex) {
-    let file = this.fileList[fileIndex]
+  uploadFile (fileKey) {
+    let file = this.find(fileKey)
     let xNosToken, // 上传凭证
       bucket, //
       object, //
@@ -176,12 +188,15 @@ class Uploader {
   }
   /**
    * 移除文件
-   * @param {Number} fileIndex 文件索引
+   * @param {Number} fileKey 文件索引
    */
-  removeFile (fileIndex) {
-    let file = this.fileList[fileIndex]
-    this.fileList.splice(fileIndex, 1)
+  removeFile (fileKey) {
+    let file = this.findFile(fileKey)
     file.ruin()
+    let fileIndex = this.indexOf(file)
+    if (fileIndex > -1) {
+      this.fileList.splice(fileIndex, 1)
+    }
   }
 }
 

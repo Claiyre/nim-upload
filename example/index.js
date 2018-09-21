@@ -1,39 +1,43 @@
 import './index.scss'
 // import Uploader from '../src/index'
-let input = document.getElementById('file-input')
-console.log(input.nodeType)
-console.log(input.type)
-console.log(input.nodeName)
-input.onchange = (e) => {
-  console.log(e.target.files[0] instanceof File)
-  console.log(input.files[0].slice(0, 100) instanceof File)
-  console.log(input.files[0].slice(0, 100) instanceof Blob)
-  console.log(input.files[0].slice(0, 100))
-}
+import Uploader from '../index'
 
-// let loader = new Uploader()
-function addAge (target) {
-  target.prototype.age = 10
-}
+let target = document.getElementById('file-input')
+let loader1 = new Uploader({
+  target,
+  trunkSize: 2 * 1024 * 1024,
+  Nouce: 16,
+  AppKey: '2f2a7935c3a5412a9a31be60924927f6',
+  CheckSum: 'e3e847f6a0d7c8d9a78c43a2bbe6d1d91db83acd'
+})
+loader1.on('added', function (fileKey) {
+  loader1.uploadFile(fileKey)
+})
 
-@addAge
-class Test {
-  constructor (name) {
-    this.name = name
-    return false
-  }
-  setName (name) {
-    this.name = name
-  }
-  getName () {
-    this.setName('world')
-    return this.name
-  }
-}
+// import fly from 'flyio'
+// import Test from './test'
+// import Uploader from '../src/index'
+// let input = document.getElementById('file-input')
 
-let test = new Test('claiyre')
-let test2 = new Test('claiyre2')
-
-console.log(test2.age)
-console.log(test2.getName())
-console.log(test)
+// function createPro (i) {
+//   return new Promise((resolve, reject) => {
+//     setTimeout(() => {
+//       resolve(i)
+//     }, 1000)
+//   })
+// }
+// let i = 0
+// function a () {
+//   return createPro(i).then((res) => {
+//     console.log(res)
+//     i++
+//     if (i > 5) {
+//       return Promise.resolve(i)
+//     } else {
+//       return a()
+//     }
+//   })
+// }
+// a().then((res) => {
+//   console.log('done!')
+// })

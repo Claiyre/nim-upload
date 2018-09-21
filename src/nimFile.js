@@ -17,6 +17,7 @@ class NimFile {
     this.status = 0 /* 0: 等待上传 1: 上传中 2: 上传完毕 */
     this.progress = 0
     localStorage.setItem(fileKey + '_created', new Date())
+    h.onAdded(fileKey)
   }
   /**
    * 文件上传初始化，获取xNosToken（上传凭证）、bucket（存储对象的桶名）、object（生成的唯一对象名）
