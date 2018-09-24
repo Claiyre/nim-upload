@@ -10,7 +10,8 @@ module.exports = {
   globals: {
     "File": true,
     "Blob": true,
-    "localStorage": true
+    "localStorage": true,
+    "FileList": true
   },
   rules: {
     "strict": 0

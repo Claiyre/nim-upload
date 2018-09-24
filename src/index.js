@@ -66,27 +66,35 @@ class Uploader {
    */
   addFile (param) {
     let files = []
-    let exts = this.options.fileExts
+    let exts = this.fileExts
     if (param instanceof File) {
       files.push(param)
+    } else if (param instanceof FileList) {
+      files = param
     } else if (param instanceof Array && param.every(item => item instanceof File)) {
       files = param.slice(0)
     } else {
-      h.onError(new Error(`Method addFile's param can only be File object or File object array, not ${param}`))
+      h.onError(new Error(`Method addFile's param can only be File, FileList or File array, not ${param}`))
     }
     if (exts instanceof Array && exts.length > 0) {
-      files.forEach(item => this.fileList.push(new NimFile(item)))
-    } else {
       /* 文件类型检查 */
-      files.forEach(item => {
-        let ext = item.name.split('.').pop()
-        if (exts.find(ext)) {
-          this.fileList.push(new NimFile(item))
-          h.onAdded()
+      for (let i = 0; i < files.length; i++) {
+        let nf = new NimFile(files[i])
+        if (exts.find(nf.format)) {
+          this.fileList.push(nf)
+          console.log(this.fileList)
+          h.onAdded(nf.fileKey)
         } else {
-          h.onFileTypeNotMatch(ext)
+          h.onFileTypeNotMatch(nf.format)
         }
-      })
+      }
+    } else {
+      for (let i = 0; i < files.length; i++) {
+        let nf = new NimFile(files[i])
+        this.fileList.push(nf)
+        console.log(this.fileList)
+        h.onAdded(nf.fileKey)
+      }
     }
   }
   /**
@@ -116,13 +124,15 @@ class Uploader {
    * @param {Number} fileKey 文件在fileList中的索引
    */
   uploadFile (fileKey) {
-    let file = this.find(fileKey)
+    console.log(this.fileList)
+    console.log(fileKey)
+    let file = this.findFile(fileKey)
     let xNosToken, // 上传凭证
       bucket, //
       object, //
       address, //
       offset //
-    file.getInitInfo(this.options).then(res => {
+    file.getInitInfo(this).then(res => {
       // 获取上传初始化信息
       xNosToken = res.xNosToken
       bucket = res.bucket
@@ -154,7 +164,7 @@ class Uploader {
    * @param {String} address 断点续传下一个上传片的偏移
    */
   _uploadTrunk (file, xNosToken, bucket, object, offset, address) {
-    let trunkSize = file.trunkSize || this.options.trunkSize
+    let trunkSize = file.trunkSize || this.trunkSize
     let trunkData = file.file.slice(offset, offset + trunkSize)
     let that = this
     let url = searchParamToString({
