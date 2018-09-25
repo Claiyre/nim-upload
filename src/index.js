@@ -152,7 +152,7 @@ class Uploader {
       object,
       address,
       offset
-    file.getInitInfo(options).then(res => {
+    file.getInitInfo(options || {}).then(res => {
       /* 获取上传初始化信息 */
       xNosToken = res.xNosToken
       bucket = res.bucket
