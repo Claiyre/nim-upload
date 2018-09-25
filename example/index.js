@@ -11,7 +11,3 @@ let loader1 = new Uploader({
 loader1.on('added', function (fileKey) {
   loader1.uploadFile(fileKey)
 })
-function a () {
-  console.log('---')
-}
-console.log(a instanceof Function)

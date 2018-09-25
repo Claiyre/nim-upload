@@ -28,21 +28,33 @@ npm install nim-uploader --save
 import Uploader from 'nim-uploader'
 
 let loader = new Uploader({
-  target: 'xxx',  // required, File对象/File对象数组/FileList/Input[type='file'] DOM
+  target: 'xxx',  // required, File/File数组/FileList/Input[type='file']DOM
   trunkSize: 4*1024*1024, // 分片大小
   fileExts: [],  // 可接受的文件类型数组
   Nouce: 'xxx', // 用于接口鉴权，只有Nouce, AppKey, CheckSum都传入时，才会进行接口鉴权
   AppKey: 'xxx',
   CheckSum: 'xxx',
-  onError/onAdded/onProgress/onUploaded/onFileTypeNotMatch: Function  // 事件监听函数，初始化后也可通过 instance.on('error', handler)添加
+  onError/onAdded/onProgress/onUploaded/onFileTypeNotMatch: Function  // 事件监听函数
 })
 ```
 
 ### attr
 
-- `loader.fileList`: `Array`, 由富文件对象组成的数组
+- `loader.fileList`: `Array`, 由 **[富文件对象](#富文件对象)** 组成的数组
 - `loader.trunksize`: `{Number}` 分片大小，最大4M，默认为4M
 - `loader.fileExts`: `Array` 可接受的文件类型数组， 默认接受所有类型的文件
+
+#### 富文件对象
+
+富文件对象是自定义的，包含更多文件信息和api的对象。其属性有
+
+- `fileKey`: 文件的唯一标识，通过`md5(file.name + ':' + file.size)`生成
+- `file`: 实际的 [File](https://developer.mozilla.org/zh-CN/docs/Web/API/File) 对象
+- `fileName`: 文件名称
+- `format`: 文件后缀名
+- `checked`: 是否被选中，默认为true
+- `status`: 文件状态，0: 等待上传 1: 上传中 2: 上传完毕
+- `progress`: 文件的上传进度，小数 保留四位
 
 ### api
 
@@ -79,7 +91,3 @@ uploader.on('allUploaded', function(fileKeyArr) {
   // ...
 })
 ```
-
-## Todo
-
-test
