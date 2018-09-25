@@ -7,7 +7,6 @@ import NimFile from './nimFile'
 const h = new Handlers()
 
 // TODO 参数更加健全
-// TODO 添加对旧库的兼容，非promise情况下的兼容
 // TODO add test
 /**
  * @class Uploader
@@ -92,7 +91,6 @@ class Uploader {
       for (let i = 0; i < files.length; i++) {
         let nf = new NimFile(files[i])
         this.fileList.push(nf)
-        console.log(this.fileList)
         h.onAdded(nf.fileKey)
       }
     }
@@ -106,24 +104,40 @@ class Uploader {
   }
   /**
    * 上传所有文件
+   * @param callback {Function} 上传成功的回调
+   * @param errCallback {Function} 上传失败的回调
    */
-  uploadAll () {
+  uploadAll (callback, errCallback) {
     let promiseArr = []
+    let fileKeyArr = []
     this.fileList.forEach(item => {
       if (item.checked) {
         promiseArr.push(this.uploadFile(item.fileKey))
+        fileKeyArr.push(item.fileKey)
       }
     })
     return Promise.all(promiseArr).then(res => {
       h.onAllUploaded()
-      return Promise.resolve()
+      if (callback) {
+        callback(fileKeyArr)
+      } else {
+        return Promise.resolve()
+      }
+    }).catch(err => {
+      if (errCallback) {
+        errCallback(err)
+      } else {
+        return Promise.reject(err)
+      }
     })
   }
   /**
    * 根据fileKey上传文件
-   * @param {Number} fileKey 文件在fileList中的索引
+   * @param fileKey {Number} required 文件在fileList中的索引
+   * @param callback {Function} 上传成功的回调
+   * @param errCallback {Function} 上传失败的回调
    */
-  uploadFile (fileKey) {
+  uploadFile (fileKey, callback, errCallback) {
     console.log(this.fileList)
     console.log(fileKey)
     let file = this.findFile(fileKey)
@@ -149,9 +163,17 @@ class Uploader {
       return this._uploadTrunk(file, xNosToken, bucket, object, offset, address)
     }).then(res => {
       h.onUploaded(file.fileKey)
-      return Promise.resolve(file.fileKey)
+      if (callback) {
+        callback(file)
+      } else {
+        return Promise.resolve(file)
+      }
     }).catch(err => {
-      h.onError(err)
+      if (errCallback) {
+        errCallback(err)
+      } else {
+        h.onError(err)
+      }
     })
   }
   /**
