@@ -6,7 +6,6 @@ import Handlers from './handlers'
 import NimFile from './nimFile'
 const h = new Handlers()
 
-// TODO 参数更加健全
 // TODO add test
 /**
  * @class Uploader
@@ -134,19 +133,25 @@ class Uploader {
   /**
    * 根据fileKey上传文件
    * @param fileKey {Number} required 文件在fileList中的索引
+   * @param options {Object} 文件上传初始化参数，如水印id，转码等
    * @param callback {Function} 上传成功的回调
    * @param errCallback {Function} 上传失败的回调
    */
-  uploadFile (fileKey, callback, errCallback) {
-    console.log(this.fileList)
-    console.log(fileKey)
+  uploadFile (fileKey, options, callback, errCallback) {
+    // console.log(this.fileList)
+    // console.log(fileKey)
+    if (options instanceof Function) {
+      errCallback = callback
+      callback = options
+      options = {}
+    }
     let file = this.findFile(fileKey)
     let xNosToken, // 上传凭证
       bucket, //
       object, //
       address, //
       offset //
-    file.getInitInfo(this).then(res => {
+    file.getInitInfo(options).then(res => {
       // 获取上传初始化信息
       xNosToken = res.xNosToken
       bucket = res.bucket
