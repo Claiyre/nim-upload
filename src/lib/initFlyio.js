@@ -9,10 +9,10 @@ export default function initFlyio () {
   // 若鉴权参数存在，则拦截请求在header中添加接口鉴权信息
   if (this.AppKey && this.Nonce && this.CheckSum) {
     fly.interceptors.request.use((request) => {
-      request.header['AppKey'] = context.AppKey
-      request.header['Nonce'] = context.Nonce
-      request.header['CheckSum'] = context.CheckSum
-      request.header['CurTime'] = parseInt(new Date().getTime() / 1000)
+      request.headers['AppKey'] = context.AppKey
+      request.headers['Nonce'] = context.Nonce
+      request.headers['CheckSum'] = context.CheckSum
+      request.headers['CurTime'] = parseInt(new Date().getTime() / 1000)
     })
   }
   // 添加响应拦截器
