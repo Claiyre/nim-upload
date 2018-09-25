@@ -116,7 +116,7 @@ class Uploader {
       }
     })
     return Promise.all(promiseArr).then(res => {
-      h.onAllUploaded()
+      h.onAllUploaded(fileKeyArr)
       if (callback) {
         callback(fileKeyArr)
       } else {
@@ -237,4 +237,5 @@ class Uploader {
   }
 }
 
-export default Uploader
+module.exports = Uploader
+// export default Uploader
