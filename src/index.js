@@ -1,11 +1,12 @@
 import { searchParamToString } from './lib/utils'
 import checkParams from './lib/checkParams'
 import initFlyio from './lib/initFlyio'
-import { defaultOptions } from './config'
 import Handlers from './handlers'
 import NimFile from './nimFile'
 const h = new Handlers()
-
+const defaultOptions = {
+  trunkSize: 4 * 1024 * 1024
+}
 // TODO add test
 /**
  * @class Uploader
@@ -23,7 +24,6 @@ const h = new Handlers()
 class Uploader {
   constructor (params) {
     const options = Object.assign({}, defaultOptions, params)
-    this.fileList = []
     checkParams(options)
     Object.keys(options).forEach(key => {
       if (key.startsWith('on')) {
@@ -36,6 +36,7 @@ class Uploader {
     this._fly = initFlyio.call(this)
     NimFile.prototype._fly = this._fly
 
+    this.fileList = []
     if (this.target.nodeName === 'INPUT') {
       this.target.addEventListener('change', function (e) {
         this.addFile(e.target.files)
@@ -146,24 +147,24 @@ class Uploader {
       options = {}
     }
     let file = this.findFile(fileKey)
-    let xNosToken, // 上传凭证
-      bucket, //
-      object, //
-      address, //
-      offset //
+    let xNosToken,
+      bucket,
+      object,
+      address,
+      offset
     file.getInitInfo(options).then(res => {
-      // 获取上传初始化信息
+      /* 获取上传初始化信息 */
       xNosToken = res.xNosToken
       bucket = res.bucket
       object = res.object
       xNosToken = res.xNosToken
       return file.getAddress(bucket)
     }).then(res => {
-      // 获取上传加速节点地址
+      /* 获取上传加速节点地址 */
       address = res
       return file.getOffset(xNosToken, bucket, object)
     }).then(res => {
-      // 获取偏移量
+      /* 获取偏移量 */
       offset = res.offset
       return this._uploadTrunk(file, xNosToken, bucket, object, offset, address)
     }).then(res => {
