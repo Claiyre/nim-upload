@@ -11,7 +11,8 @@ module.exports = {
     "File": true,
     "Blob": true,
     "localStorage": true,
-    "FileList": true
+    "FileList": true,
+    "FormData": true
   },
   rules: {
     "strict": 0

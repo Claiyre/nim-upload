@@ -1,5 +1,7 @@
 import md5 from 'md5'
 import Handlers from './handlers'
+import fly from 'flyio'
+import { searchParamToString } from './lib/utils'
 
 let h = new Handlers()
 class NimFile {
@@ -65,10 +67,11 @@ class NimFile {
     if (address) {
       return Promise.resolve(address)
     }
-    return this._fly.get('http://wanproxy.127.net/lbs', {
+    let _param = searchParamToString({
       version: '1.0',
       bucketname: bucket
-    }).then((res) => {
+    })
+    return fly.get('http://wanproxy.127.net/lbs' + '?' + _param, new FormData()).then((res) => {
       if (!res.upload) {
         return Promise.reject(new Error('Get lbs failed:', res))
       }
@@ -77,12 +80,22 @@ class NimFile {
     })
   }
   getOffset () {
-    return this._fly.get(`${this.address}/${this.bucket}/${this.object}?uploadContext`, {
-      'x-nos-token': this.xNosToken,
+    let context = localStorage.getItem(`${this.fileKey}_context`)
+    if (!context) {
+      return Promise.resolve({
+        offset: 0
+      })
+    }
+    let _param = searchParamToString({
       bucketName: this.bucket,
       objectName: this.object,
-      context: localStorage.getItem(`${this.fileKey}_context`),
+      context,
       version: '1.0'
+    })
+    return fly.get(`${this.address}/${this.bucket}/${this.object}?uploadContext?${_param}`, new FormData(), {
+      headers: {
+        'x-nos-token': this.xNosToken
+      }
     })
   }
   ruin () {

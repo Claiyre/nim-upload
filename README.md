@@ -12,6 +12,14 @@ A helpful library for uploading files on web.
 - 云信点播上传流程封装
 - 点播上传接口鉴权
 
+## Demo
+
+```
+npm install
+npm run build
+npm run demo
+```
+
 ## Installation
 
 ```javascript

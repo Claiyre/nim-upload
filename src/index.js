@@ -3,6 +3,7 @@ import checkParams from './lib/checkParams'
 import initFlyio from './lib/initFlyio'
 import Handlers from './handlers'
 import NimFile from './nimFile'
+import fly from 'flyio'
 const h = new Handlers()
 const defaultOptions = {
   trunkSize: 4 * 1024 * 1024
@@ -14,7 +15,7 @@ const defaultOptions = {
  * @param params.target required 一个File对象/File对象数组/type='file'的input
  * @param params.trunkSize 分片大小，最大为4M
  * @param params.fileExts {Array} 可接受的文件类型，如['MP4', 'MKV']。 若不填，则表示不限制上传文件的类型
- * @param params.Nouce  随机数，用于接口鉴权
+ * @param params.Nonce  随机数，用于接口鉴权
  * @param params.AppKey  开发者平台分配的AppKey，用于接口鉴权
  * @param params.CheckSum  服务器认证需要，SHA1(AppSecret+Nonce+CurTime)，16进制字符小写
  * @param params.[onError/onProgress/onUploaded] 各种监听事件，初始化后可通过 instance.on('error', handler)添加
@@ -35,6 +36,10 @@ class Uploader {
     /* 初始化Loader和NimFile的_fly，添加鉴权信息和响应拦截 */
     this._fly = initFlyio.call(this)
     NimFile.prototype._fly = this._fly
+    // NimFile.prototype.AppKey = this.AppKey
+    // NimFile.prototype.CheckSum = this.CheckSum
+    // NimFile.prototype.Nonce = this.Nonce
+    // NimFile.prototype.CurTime = this.CurTime
 
     this.fileList = []
     if (this.target.nodeName === 'INPUT') {
@@ -81,7 +86,6 @@ class Uploader {
         let nf = new NimFile(files[i])
         if (exts.find(nf.format)) {
           this.fileList.push(nf)
-          console.log(this.fileList)
           h.onAdded(nf.fileKey)
         } else {
           h.onFileTypeNotMatch(nf.format)
@@ -139,8 +143,6 @@ class Uploader {
    * @param errCallback {Function} 上传失败的回调
    */
   uploadFile (fileKey, options, callback, errCallback) {
-    // console.log(this.fileList)
-    // console.log(fileKey)
     if (options instanceof Function) {
       errCallback = callback
       callback = options
@@ -198,15 +200,15 @@ class Uploader {
     let url = searchParamToString({
       bucket,
       object,
-      complete: false,
+      offset,
+      complete: (offset + trunkSize) > file.file.size,
       version: '1.0',
       context: localStorage.getItem(file.fileKey + '_context') || ''
     })
     url = `${address}/${bucket}/${object}?${url}`
-    return this._fly.post(url, trunkData, {
+    return fly.post(url, trunkData, {
       headers: {
-        'x-nos-token': xNosToken,
-        'Content-Length': trunkSize
+        'x-nos-token': xNosToken
       }
     }).then(res => {
       if (!res.offset) {
@@ -214,7 +216,7 @@ class Uploader {
       }
       localStorage.setItem(file.fileKey + '_context', res.context)
       file.updateProgress(res.offset)
-      if (res.offset < file.size) {
+      if (res.offset < file.file.size) {
         /* 继续上传下一片 */
         return that._uploadTrunk(file, xNosToken, bucket, object, res.offset, address)
       } else {

@@ -6,7 +6,7 @@ class Handlers {
    * @method onError
    */
   onError (err) {
-    console.log(err)
+    console.error(err)
   }
   /**
    * 文件上传进度
