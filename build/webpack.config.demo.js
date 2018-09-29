@@ -4,23 +4,24 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   mode: 'development',
-  entry: './example/index.js',
+  entry: './demo/index.js',
   module: {
     rules: [
       { test: /\.js$/, exclude: path.resolve(__dirname, '../node_modules'), loader: 'babel-loader' },
-      { test: /\.html$/, include: path.resolve(__dirname, '../example'), loader: 'html-loader' },
-      { test: /\.scss$/, include: path.resolve(__dirname, '../example'), use: ['style-loader', 'css-loader', 'sass-loader'] }
+      { test: /\.html$/, include: path.resolve(__dirname, '../demo'), loader: 'html-loader' },
+      { test: /\.scss$/, include: path.resolve(__dirname, '../demo'), use: ['style-loader', 'css-loader', 'sass-loader'] }
     ]
   },
   devtool: 'cheap-module-eval-source-map',
   devServer: {
     contentBase: path.join(__dirname, '../dist'),
     compress: true,
+    allowedHosts: ['faq.yunxin.163.com'],
     port: 9000
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'example/index.html'
+      template: 'demo/index.html'
     })
   ]
 }
