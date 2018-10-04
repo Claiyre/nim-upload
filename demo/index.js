@@ -13,3 +13,9 @@ let loader1 = new Uploader({
 loader1.on('added', function (fileKey) {
   loader1.uploadFile(fileKey)
 })
+loader1.on('uploaded', function (fileKey) {
+  console.log('file upload done: ', loader1.findFile(fileKey))
+})
+loader1.on('progress', function (p) {
+  console.log('uploading, progress: ', p * 100 + '%')
+})

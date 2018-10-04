@@ -1,13 +1,12 @@
-import { searchParamToString } from './lib/utils'
 import checkParams from './lib/checkParams'
-import initFlyio from './lib/initFlyio'
+import Ajax from './lib/ajax'
 import Handlers from './handlers'
 import NimFile from './nimFile'
-import fly from 'flyio'
 const h = new Handlers()
 const defaultOptions = {
   trunkSize: 4 * 1024 * 1024
 }
+
 // TODO add test
 /**
  * @class Uploader
@@ -33,13 +32,23 @@ class Uploader {
         this[key] = options[key]
       }
     })
-    /* 初始化Loader和NimFile的_fly，添加鉴权信息和响应拦截 */
-    this._fly = initFlyio.call(this)
+    /* 添加sjax拦截和鉴权信息 */
+    // this._fly = initFlyio.call(this)
+    this._fly = new Ajax()
+    let context = this
+    if (this.AppKey && this.Nonce && this.CheckSum && this.CurTime) {
+      this._fly.interceptor.request.use(request => {
+        if (request.method === 'GET' || request.url.indexOf('context=') > -1) return
+        request.headers['AppKey'] = context.AppKey
+        request.headers['Nonce'] = context.Nonce
+        request.headers['CheckSum'] = context.CheckSum
+        request.headers['CurTime'] = context.CurTime
+      })
+    }
+    this._fly.interceptor.response.use((response) => {
+      return response.data
+    })
     NimFile.prototype._fly = this._fly
-    // NimFile.prototype.AppKey = this.AppKey
-    // NimFile.prototype.CheckSum = this.CheckSum
-    // NimFile.prototype.Nonce = this.Nonce
-    // NimFile.prototype.CurTime = this.CurTime
 
     this.fileList = []
     if (this.target.nodeName === 'INPUT') {
@@ -197,19 +206,22 @@ class Uploader {
     let trunkSize = file.trunkSize || this.trunkSize
     let trunkData = file.file.slice(offset, offset + trunkSize)
     let that = this
-    let url = searchParamToString({
+    let url = `${address}/${bucket}/${object}`
+    if (offset >= file.file.size) {
+      return Promise.resolve({ code: 200, msg: 'done' })
+    }
+    return this._fly.post(url, {
       bucket,
       object,
       offset,
       complete: (offset + trunkSize) > file.file.size,
       version: '1.0',
       context: localStorage.getItem(file.fileKey + '_context') || ''
-    })
-    url = `${address}/${bucket}/${object}?${url}`
-    return fly.post(url, trunkData, {
+    }, {
       headers: {
         'x-nos-token': xNosToken
-      }
+      },
+      data: trunkData
     }).then(res => {
       if (!res.offset) {
         return Promise.reject(new Error(`File upload request ${res.requestId} failed`))

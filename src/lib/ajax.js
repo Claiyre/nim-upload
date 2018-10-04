@@ -8,11 +8,10 @@ class Ajax {
       headers: {}
     }, config)
     this.config.method = this.config.method.toUpperCase()
-
     this.interceptor = {
       response: {
         use: function (handler, err) {
-          this.handler = handler
+          this.handlers = handler
           this.err = err
         }
       },
@@ -29,8 +28,11 @@ class Ajax {
     let _options = this._merge(this.config, options)
     let _headers = _options.headers
     let _params = Object.assign({}, params)
-    let contentType = options.headers['Content-Type'] || ''
+    let contentType = _headers['Content-Type'] || ''
     let reqIns = this.interceptor.request.handlers
+    let resIns = this.interceptor.response.handlers
+    let resErr = this.interceptor.response.err
+    let isGet = _options.method === 'GET'
     let xhr = new XMLHttpRequest()
 
     // transform post formdata
@@ -42,6 +44,9 @@ class Ajax {
       _options.data = form
       _params = {}
     }
+    if (isGet) {
+      _params = this._merge(_params, _options.data)
+    }
     let _url = this._makeUrl(url, _params, _options.baseUrl)
     _options.url = _url
 
@@ -52,15 +57,21 @@ class Ajax {
     return new Promise((resolve, reject) => {
       xhr.onreadystatechange = function () {
         if (xhr.readyState !== 4) return
+        let resType = xhr.getResponseHeader('Content-Type')
         let code = xhr.status
         let res = xhr.responseText
+        let data = {}
         if ((code >= 200 && code < 300) || code === 304) {
-          if (_that.config.parseJson && xhr.responseType.match(/application\/json/)) {
+          if (_that.config.parseJson && resType.match(/json/)) {
             res = JSON.parse(res)
           }
-          resolve({ code, data: res })
+          data = { code, data: res }
+          if (resIns && resIns instanceof Function) {
+            data = resIns(data)
+          }
+          resolve(data)
         } else {
-          reject(new Error({ code, err: res }))
+          reject(res)
         }
       }
       xhr.open(_options.method, _url, true)
@@ -72,7 +83,13 @@ class Ajax {
           } catch (e) {}
         }
       }
-      xhr.send(_options.method === 'GET' ? null : _options.data)
+      xhr.send(isGet ? null : _options.data)
+    }).catch(err => {
+      // response interceptor error
+      if (resErr && resErr instanceof Function) {
+        return resErr(err)
+      }
+      return Promise.reject(err)
     })
   }
   _makeUrl (url, params, baseUrl) {
@@ -81,9 +98,9 @@ class Ajax {
     if (params && Object.keys(params).length > 0) {
       _paramsUrl = '?' + searchParamToString(params)
     }
-    if (_url.startWith('http') || !baseUrl) return _url + _paramsUrl
+    if (_url.startsWith('http') || !baseUrl) return _url + _paramsUrl
 
-    if (_url.startWith('/')) _url = _url.slice(1)
+    if (_url.startsWith('/')) _url = _url.slice(1)
     if (!baseUrl.endsWith('/')) baseUrl += '/'
 
     return baseUrl + _url + _paramsUrl
@@ -100,5 +117,10 @@ class Ajax {
     return obj
   }
 }
+['get', 'post', 'put', 'delete'].forEach(key => {
+  Ajax.prototype[key] = function (url, params, options = {}) {
+    return this.request(url, params, Object.assign(options, { method: key.toUpperCase() }))
+  }
+})
 // let global = new Ajax()
 module.exports = Ajax

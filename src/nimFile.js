@@ -1,7 +1,5 @@
 import md5 from 'md5'
 import Handlers from './handlers'
-import fly from 'flyio'
-import { searchParamToString } from './lib/utils'
 
 let h = new Handlers()
 class NimFile {
@@ -47,7 +45,12 @@ class NimFile {
     transOffset && (p.transOffset = transOffset)
     transDuration && (p.transDuration = transDuration)
 
-    return this._fly.post('https://vcloud.163.com/app/vod/upload/init', p).then(res => {
+    return this._fly.post('https://vcloud.163.com/app/vod/upload/init', {}, {
+      data: JSON.stringify(p),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(res => {
       if (res.code !== 200) {
         return Promise.reject(res.msg)
       }
@@ -67,11 +70,10 @@ class NimFile {
     if (address) {
       return Promise.resolve(address)
     }
-    let _param = searchParamToString({
+    return this._fly.get('http://wanproxy.127.net/lbs', {
       version: '1.0',
       bucketname: bucket
-    })
-    return fly.get('http://wanproxy.127.net/lbs' + '?' + _param, new FormData()).then((res) => {
+    }).then((res) => {
       if (!res.upload) {
         return Promise.reject(new Error('Get lbs failed:', res))
       }
@@ -86,13 +88,12 @@ class NimFile {
         offset: 0
       })
     }
-    let _param = searchParamToString({
+    return this._fly.get(`${this.address}/${this.bucket}/${this.object}?uploadContext`, {
       bucketName: this.bucket,
       objectName: this.object,
       context,
       version: '1.0'
-    })
-    return fly.get(`${this.address}/${this.bucket}/${this.object}?uploadContext?${_param}`, new FormData(), {
+    }, {
       headers: {
         'x-nos-token': this.xNosToken
       }
