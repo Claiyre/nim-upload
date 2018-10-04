@@ -10,6 +10,7 @@ class NimFile {
     }
     let fileKey = md5(file.name + ':' + file.size)
     this.file = file
+    this.size = file.size
     this.fileKey = fileKey
     this.fileName = file.name
     this.format = file.name.split('.').pop()

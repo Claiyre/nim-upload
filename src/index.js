@@ -207,14 +207,14 @@ class Uploader {
     let trunkData = file.file.slice(offset, offset + trunkSize)
     let that = this
     let url = `${address}/${bucket}/${object}`
-    if (offset >= file.file.size) {
+    if (offset >= file.size) {
       return Promise.resolve({ code: 200, msg: 'done' })
     }
     return this._fly.post(url, {
       bucket,
       object,
       offset,
-      complete: (offset + trunkSize) > file.file.size,
+      complete: (offset + trunkSize) > file.size,
       version: '1.0',
       context: localStorage.getItem(file.fileKey + '_context') || ''
     }, {
@@ -228,7 +228,7 @@ class Uploader {
       }
       localStorage.setItem(file.fileKey + '_context', res.context)
       file.updateProgress(res.offset)
-      if (res.offset < file.file.size) {
+      if (res.offset < file.size) {
         /* 继续上传下一片 */
         return that._uploadTrunk(file, xNosToken, bucket, object, res.offset, address)
       } else {
