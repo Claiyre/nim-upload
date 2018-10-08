@@ -23,7 +23,7 @@ npm run demo
 ## Installation
 
 ```javascript
-npm install nim-uploader --save
+npm install @claiyre/nim-upload --save          //nim-upload被用了 =_=
 // or
 <script src="..../uploader.js"></script>
 // or
@@ -99,6 +99,7 @@ uploader.on('allUploaded', function(fileKeyArr) {
 - `file`: 实际的 [File](https://developer.mozilla.org/zh-CN/docs/Web/API/File) 对象
 - `fileName`: 文件名称
 - `format`: 文件后缀名
+- `size`: 文件大小
 - `checked`: 是否被选中，默认为true
 - `status`: 文件状态，0: 等待上传 1: 上传中 2: 上传完毕
 - `progress`: 文件的上传进度，小数 保留四位

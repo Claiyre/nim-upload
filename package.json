@@ -1,5 +1,5 @@
 {
-  "name": "nim-upload",
+  "name": "@claiyre/nim-upload",
   "version": "1.0.0",
   "description": "A helpful library for uploading files on web",
   "main": "index.js",
