@@ -12,7 +12,7 @@ class Handlers {
    * 文件上传进度
    * @method onProgress
    */
-  onProgress (p) {
+  onProgress (p, fileKey) {
 
   }
   /**

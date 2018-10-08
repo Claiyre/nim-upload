@@ -114,11 +114,11 @@ class NimFile {
       let p = (offset / this.size).toFixed(4)
       this.status = 1
       this.progress = p
-      h.onProgress(p)
+      h.onProgress(p, this.fileKey)
     } else {
       this.progress = 1
       this.status = 2
-      h.onProgress(1)
+      h.onProgress(1, this.fileKey)
     }
   }
 }

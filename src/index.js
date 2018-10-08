@@ -1,4 +1,4 @@
-import checkParams from './lib/checkParams'
+import { checkParams } from './lib/utils'
 import Ajax from './lib/ajax'
 import Handlers from './handlers'
 import NimFile from './nimFile'
@@ -14,12 +14,13 @@ const defaultOptions = {
  * @param params.target required 一个File对象/File对象数组/type='file'的input
  * @param params.trunkSize 分片大小，最大为4M
  * @param params.fileExts {Array} 可接受的文件类型，如['MP4', 'MKV']。 若不填，则表示不限制上传文件的类型
- * @param params.Nonce  随机数，用于接口鉴权
- * @param params.AppKey  开发者平台分配的AppKey，用于接口鉴权
+ * @param params.Nonce  随机数
+ * @param params.AppKey  开发者平台分配的AppKey
  * @param params.CheckSum  服务器认证需要，SHA1(AppSecret+Nonce+CurTime)，16进制字符小写
+ * @param params.CurTime 当前UTC时间戳，从1970年1月1日0点0分0秒开始到现在的秒数
  * @param params.[onError/onProgress/onUploaded] 各种监听事件，初始化后可通过 instance.on('error', handler)添加
- * Nouce,AppKey,CheckSum用于接口鉴权，可在应用服务器端存储和使用，但不应存储或传递到客户端，也不应在网页等前端代码中嵌入。
- * 因此不建议传入这三个参数，而是通过中间层拦ajax请求，将鉴权信息添加到header中。若这三个参数都被传入了，则nim-loader将会自行添加接口鉴权信息
+ * Nouce,AppKey,CheckSum,CurTime 用于接口鉴权，可在应用服务器端存储和使用，但不应存储或传递到客户端，也不应在网页等前端代码中嵌入。
+ * 因此不建议传入这三个参数，若这三个参数都被传入了，则nim-loader将会自行添加接口鉴权信息
  */
 class Uploader {
   constructor (params) {
