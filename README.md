@@ -2,7 +2,7 @@
 
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-A helpful library for uploading files on web.
+注：该工具是专为云信点播上传设计的，并不适用于普通的文件上传
 
 ## Features
 
@@ -53,17 +53,6 @@ let loader = new Uploader({
 - `loader.trunksize`: `{Number}` 分片大小，最大4M，默认为4M
 - `loader.fileExts`: `Array` 可接受的文件类型数组， 默认接受所有类型的文件
 
-### api
-
-- `loader.uploadFile(fileKey)`: 上传文件
-- `loader.uploadAll()`: 上传 `fileList` 中的所有文件
-- `loader.addFile(param)`: 向`fileList` 中添加文件， param可以是File/FileList/File数组
-- `loader.removeFile(fileKey)`: 从 `fileList` 中移除某文件
-- `loader.findFile(filekey)`: 根据`fileKey`得到NimFile实例对象
-- `loader.on('eventname', listener)`: 添加事件监听
-
-其中`uploadFile`, `uploadAll`可以继续传入两个函数参数，作为上传成功和失败的回调，也可不传，返回Promise对象
-
 ### event Listener
 
 - `onError(err)`: 发生错误时调用
@@ -90,6 +79,17 @@ uploader.on('allUploaded', function(fileKeyArr) {
   /* ... */
 })
 ```
+
+### api
+
+- `loader.uploadFile(fileKey)`: 上传文件
+- `loader.uploadAll()`: 上传 `fileList` 中的所有文件
+- `loader.addFile(param)`: 向`fileList` 中添加文件， param可以是File/FileList/File数组
+- `loader.removeFile(fileKey)`: 从 `fileList` 中移除某文件
+- `loader.findFile(filekey)`: 根据`fileKey`得到NimFile实例对象
+- `loader.on('eventname', listener)`: 添加事件监听
+
+其中`uploadFile`, `uploadAll`可以继续传入两个函数参数，作为上传成功和失败的回调，也可不传，返回Promise对象
 
 #### 富文件对象
 
